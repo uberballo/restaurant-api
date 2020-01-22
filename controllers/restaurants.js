@@ -1,15 +1,15 @@
 const restaurantRouter = require('express').Router();
 const fs = require('fs');
 
+const toRad = value => {
+  return (value * Math.PI) / 180;
+};
+
 const filterByQuery = query => {
   return restaurant => {
     const allText = restaurant.description + restaurant.name + restaurant.tags;
     return allText.includes(query);
   };
-};
-
-const toRad = value => {
-  return (value * Math.PI) / 180;
 };
 
 const filterByDistance = queryLat => {
@@ -29,11 +29,12 @@ const filterByDistance = queryLat => {
     };
   };
 };
+
 restaurantRouter.get('/restaurants/search', async (request, response) => {
   try {
     const body = request.query;
     const { q, lat, lon } = body;
-
+    
     const rawdata = fs.readFileSync('./restaurants.json');
     const restaurants = JSON.parse(rawdata).restaurants;
 
@@ -42,7 +43,7 @@ restaurantRouter.get('/restaurants/search', async (request, response) => {
 
     response.status(200).json(filteredByDistance);
   } catch (e) {
-    console.log(e);
+    response.json({error: e})
   }
 });
 
